@@ -44,6 +44,21 @@ db.exec(`
     FOREIGN KEY (user_id) REFERENCES users(id),
     UNIQUE(meetup_id, user_id)
   );
+
+  CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    meetup_id INTEGER,
+    actor_id INTEGER,
+    is_read INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (meetup_id) REFERENCES meetups(id),
+    FOREIGN KEY (actor_id) REFERENCES users(id)
+  );
 `);
 
 export default db;

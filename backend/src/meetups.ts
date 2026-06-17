@@ -122,7 +122,18 @@ router.post('/:id/join', authMiddleware, (req: AuthRequest, res: Response) => {
 
   db.prepare('INSERT INTO participants (meetup_id, user_id) VALUES (?, ?)').run(req.params.id, req.userId!);
 
-  // 检查是否满员
+  const actor = db.prepare('SELECT nickname FROM users WHERE id = ?').get(req.userId!) as any;
+  db.prepare(
+    'INSERT INTO notifications (user_id, type, title, body, meetup_id, actor_id) VALUES (?, ?, ?, ?, ?, ?)'
+  ).run(
+    meetup.creator_id,
+    'join',
+    '有人加入了你的饭局',
+    `${actor.nickname} 加入了「${meetup.title}」`,
+    meetup.id,
+    req.userId!
+  );
+
   const newCount = db.prepare('SELECT COUNT(*) as count FROM participants WHERE meetup_id = ?').get(req.params.id) as any;
   if (newCount.count >= meetup.max_participants) {
     db.prepare("UPDATE meetups SET status = 'full' WHERE id = ?").run(req.params.id);

@@ -3,6 +3,7 @@ import cors from 'cors';
 import authRoutes from './auth';
 import meetupRoutes from './meetups';
 import userRoutes from './users';
+import notificationRoutes from './notifications';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3209;
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/meetups', meetupRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });

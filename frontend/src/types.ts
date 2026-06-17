@@ -41,7 +41,21 @@ export interface UserStats {
   total_spent: number;
 }
 
-export type Page = 'square' | 'detail' | 'create' | 'profile' | 'login' | 'register';
+export type Page = 'square' | 'detail' | 'create' | 'profile' | 'login' | 'register' | 'notifications';
+
+export interface Notification {
+  id: number;
+  user_id: number;
+  type: string;
+  title: string;
+  body: string;
+  meetup_id: number | null;
+  actor_id: number | null;
+  actor_name: string | null;
+  actor_avatar: string | null;
+  is_read: number;
+  created_at: string;
+}
 
 export const RESTAURANT_TYPES = ['火锅', '烧烤', '日料', '西餐', '家常菜', '湘菜', '川菜', '粤菜', '东北菜', '东南亚菜'];
 

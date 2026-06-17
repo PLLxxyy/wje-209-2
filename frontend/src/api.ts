@@ -108,3 +108,19 @@ export async function apiGetMyCreated() {
 export async function apiGetMyJoined() {
   return request<{ meetups: import('./types').Meetup[] }>('/users/me/joined');
 }
+
+export async function apiGetNotifications() {
+  return request<{ notifications: import('./types').Notification[] }>('/notifications');
+}
+
+export async function apiGetUnreadCount() {
+  return request<{ count: number }>('/notifications/unread-count');
+}
+
+export async function apiMarkNotificationRead(id: number) {
+  return request<{ message: string }>(`/notifications/${id}/read`, { method: 'POST' });
+}
+
+export async function apiMarkAllNotificationsRead() {
+  return request<{ message: string }>('/notifications/read-all', { method: 'POST' });
+}

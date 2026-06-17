@@ -1,18 +1,28 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, Page } from './types';
-import { apiGetMe } from './api';
+import { apiGetMe, apiGetUnreadCount } from './api';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Square from './pages/Square';
 import CreateMeetup from './pages/CreateMeetup';
 import MeetupDetail from './pages/MeetupDetail';
 import Profile from './pages/Profile';
+import Notifications from './pages/Notifications';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [page, setPage] = useState<Page>('square');
   const [selectedMeetupId, setSelectedMeetupId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const refreshUnreadCount = useCallback(() => {
+    if (user) {
+      apiGetUnreadCount()
+        .then((data) => setUnreadCount(data.count))
+        .catch(() => {});
+    }
+  }, [user]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -29,6 +39,12 @@ export default function App() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    refreshUnreadCount();
+    const interval = setInterval(refreshUnreadCount, 15000);
+    return () => clearInterval(interval);
+  }, [refreshUnreadCount]);
 
   const navigate = useCallback((p: Page, meetupId?: number) => {
     setPage(p);
@@ -47,6 +63,7 @@ export default function App() {
     localStorage.removeItem('token');
     setUser(null);
     setPage('square');
+    setUnreadCount(0);
   }, []);
 
   if (loading) {
@@ -72,6 +89,9 @@ export default function App() {
       case 'profile':
         if (!user) return <Login onAuth={handleAuth} onSwitch={() => setPage('register')} />;
         return <Profile user={user} onNavigate={navigate} />;
+      case 'notifications':
+        if (!user) return <Login onAuth={handleAuth} onSwitch={() => setPage('register')} />;
+        return <Notifications onNavigate={navigate} onReadChange={refreshUnreadCount} />;
       case 'square':
       default:
         return <Square user={user} onNavigate={navigate} />;
@@ -99,6 +119,14 @@ export default function App() {
                 onClick={() => navigate('create')}
               >
                 发起饭局
+              </button>
+              <button
+                className={`nav-link nav-msg-btn ${page === 'notifications' ? 'active' : ''}`}
+                onClick={() => navigate('notifications')}
+              >
+                <span className="nav-msg-icon">🔔</span>
+                消息
+                {unreadCount > 0 && <span className="nav-msg-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
               </button>
               <button
                 className={`nav-link ${page === 'profile' ? 'active' : ''}`}
